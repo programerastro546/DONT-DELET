@@ -415,9 +415,12 @@ window.PromptFolioUtils = {
 };
 
 // Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     new PromptFolioHub();
-    
+
+    const { authManager } = await import('./auth.js');
+    window.authManager = authManager;
+
     // Add loading animation
     window.PromptFolioUtils.showLoadingAnimation && window.PromptFolioUtils.showLoadingAnimation();
 });
