@@ -1341,11 +1341,27 @@ async function initializeShop() {
     }
 
     updateCartCount();
-    renderPrompts(filteredPrompts);
+    showEmptyState();
+}
+
+function showEmptyState() {
+    const grid = document.getElementById('promptsGrid');
+    grid.innerHTML = `
+        <div class="col-span-full text-center py-20">
+            <div class="text-6xl mb-4">🏷️</div>
+            <h3 class="text-2xl font-semibold text-gray-700 mb-2">Select a Category to Browse Prompts</h3>
+            <p class="text-gray-500">Click on a category above to explore available prompts</p>
+        </div>
+    `;
 }
 
 function filterPrompts() {
     const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+
+    if (!selectedCategoryId && !selectedSubcategoryId) {
+        showEmptyState();
+        return;
+    }
 
     filteredPrompts = prompts.filter(prompt => {
         const matchesSearch = !searchQuery ||

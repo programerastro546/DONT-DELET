@@ -26,41 +26,40 @@ export function renderCategoryNav(categories, onCategorySelect) {
 
     nav.innerHTML = `
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Browse Categories</h2>
-        <div class="space-y-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             ${categories.map(category => `
                 <div class="category-section">
                     <button
-                        class="category-btn w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-blue-50 rounded-lg transition-all"
+                        class="category-btn w-full aspect-square flex flex-col items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-xl transition-all border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg"
                         data-category-id="${category.id}"
                         data-category-slug="${category.slug}"
                     >
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">${category.icon}</span>
-                            <span class="font-semibold text-gray-900 text-left">${category.name}</span>
-                        </div>
-                        <svg class="w-5 h-5 text-gray-400 transform transition-transform category-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
+                        <span class="text-4xl mb-2">${category.icon}</span>
+                        <span class="font-semibold text-gray-900 text-center text-sm leading-tight">${category.name}</span>
                     </button>
-                    <div class="subcategory-list hidden pl-12 pt-2 space-y-2">
-                        ${category.subcategories.map(sub => `
-                            <button
-                                class="subcategory-btn w-full text-left p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all"
-                                data-subcategory-id="${sub.id}"
-                                data-category-id="${category.id}"
-                            >
-                                ${sub.name}
-                            </button>
-                        `).join('')}
+                    <div class="subcategory-list hidden mt-2 space-y-2 col-span-full">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <div class="flex flex-wrap gap-2">
+                                ${category.subcategories.map(sub => `
+                                    <button
+                                        class="subcategory-btn px-4 py-2 bg-white text-gray-700 hover:bg-blue-600 hover:text-white rounded-lg transition-all font-medium text-sm border border-blue-200"
+                                        data-subcategory-id="${sub.id}"
+                                        data-category-id="${category.id}"
+                                    >
+                                        ${sub.name}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
                     </div>
                 </div>
             `).join('')}
         </div>
         <button
             id="clearCategoryFilter"
-            class="hidden w-full mt-4 p-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all"
+            class="hidden w-full mt-6 p-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all"
         >
-            Clear Filter
+            Clear Filter & Show All Prompts
         </button>
     `;
 
@@ -68,10 +67,22 @@ export function renderCategoryNav(categories, onCategorySelect) {
         btn.addEventListener('click', (e) => {
             const section = btn.closest('.category-section');
             const subList = section.querySelector('.subcategory-list');
-            const chevron = btn.querySelector('.category-chevron');
+
+            nav.querySelectorAll('.subcategory-list').forEach(list => {
+                if (list !== subList) {
+                    list.classList.add('hidden');
+                }
+            });
+
+            nav.querySelectorAll('.category-btn').forEach(b => {
+                b.classList.remove('ring-4', 'ring-blue-500');
+            });
 
             subList.classList.toggle('hidden');
-            chevron.classList.toggle('rotate-180');
+
+            if (!subList.classList.contains('hidden')) {
+                btn.classList.add('ring-4', 'ring-blue-500');
+            }
         });
     });
 
@@ -81,8 +92,12 @@ export function renderCategoryNav(categories, onCategorySelect) {
             const subcategoryId = btn.dataset.subcategoryId;
             const categoryId = btn.dataset.categoryId;
 
-            nav.querySelectorAll('.subcategory-btn').forEach(b => b.classList.remove('bg-blue-100', 'text-blue-700', 'font-semibold'));
-            btn.classList.add('bg-blue-100', 'text-blue-700', 'font-semibold');
+            nav.querySelectorAll('.subcategory-btn').forEach(b => {
+                b.classList.remove('bg-blue-600', 'text-white');
+                b.classList.add('bg-white', 'text-gray-700');
+            });
+            btn.classList.remove('bg-white', 'text-gray-700');
+            btn.classList.add('bg-blue-600', 'text-white');
 
             document.getElementById('clearCategoryFilter').classList.remove('hidden');
 
@@ -93,7 +108,16 @@ export function renderCategoryNav(categories, onCategorySelect) {
     });
 
     nav.querySelector('#clearCategoryFilter').addEventListener('click', () => {
-        nav.querySelectorAll('.subcategory-btn').forEach(b => b.classList.remove('bg-blue-100', 'text-blue-700', 'font-semibold'));
+        nav.querySelectorAll('.subcategory-btn').forEach(b => {
+            b.classList.remove('bg-blue-600', 'text-white');
+            b.classList.add('bg-white', 'text-gray-700');
+        });
+        nav.querySelectorAll('.category-btn').forEach(b => {
+            b.classList.remove('ring-4', 'ring-blue-500');
+        });
+        nav.querySelectorAll('.subcategory-list').forEach(list => {
+            list.classList.add('hidden');
+        });
         nav.querySelector('#clearCategoryFilter').classList.add('hidden');
 
         if (onCategorySelect) {
