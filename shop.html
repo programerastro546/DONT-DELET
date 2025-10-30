@@ -3,24 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop - PromptFolio Hub</title>
+    <title>PromptShelf - Discover, Save, and Share the Best AI Prompts</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        'primary': '#1e293b',
-                        'secondary': '#0891b2',
-                        'accent': '#2dd4bf',
-                        'background': '#f8fafc',
-                        'text-primary': '#374151'
-                    },
                     fontFamily: {
                         'sans': ['Inter', 'system-ui', 'sans-serif']
                     }
@@ -30,149 +23,148 @@
     </script>
 
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f9fafb;
+        }
+
         .prompt-card {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .prompt-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
         }
 
-        .nav-link {
-            position: relative;
-            transition: color 0.3s ease;
+        .modal-backdrop {
+            animation: fadeIn 0.2s ease-in-out;
         }
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #2dd4bf;
-            transition: width 0.3s ease;
+        .modal-content {
+            animation: slideIn 0.3s ease-in-out;
         }
 
-        .nav-link:hover::after {
-            width: 100%;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .category-pill {
-            transition: all 0.3s ease;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
-        .category-pill:hover {
-            transform: scale(1.05);
+        .toast {
+            animation: slideUp 0.3s ease-out;
         }
 
-        .category-pill.active {
-            background: linear-gradient(135deg, #0891b2, #2dd4bf);
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .star {
+            color: #fbbf24;
+            fill: currentColor;
+        }
+
+        .tag-pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #eff6ff;
+            color: #3b82f6;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .platform-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+        }
+
+        .platform-chatgpt {
+            background: #10a37f;
+            color: white;
+        }
+
+        .platform-claude {
+            background: #d97706;
             color: white;
         }
     </style>
 </head>
-<body class="bg-background text-text-primary font-sans">
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">P</span>
-                    </div>
-                    <span class="text-xl font-bold text-primary">PromptFolio Hub</span>
-                </div>
-
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="nav-link text-text-primary hover:text-secondary">Home</a>
-                    <a href="shop.html" class="nav-link text-text-primary hover:text-secondary">Shop</a>
-                    <a href="my-prompts.html" id="myPromptsLink" class="nav-link text-text-primary hover:text-secondary">My Prompts</a>
-                </div>
-
-                <div class="flex items-center space-x-4">
-                    <button id="authButton" class="bg-secondary text-white px-6 py-2 rounded-lg font-semibold hover:bg-secondary/90 transition-all">
-                        Sign In
-                    </button>
-                </div>
+<body>
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold text-gray-900">PromptShelf</h1>
+                <p class="text-gray-600 mt-2">Discover, Save, and Share the Best AI Prompts.</p>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <div class="pt-24 pb-16">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl md:text-5xl font-bold text-primary mb-4">
-                    Premium AI Prompt <span class="bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">Marketplace</span>
-                </h1>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Discover high-quality, expertly crafted AI prompts for your projects
-                </p>
-            </div>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="🔍 Search by title, tags, or author..."
+                class="w-full max-w-2xl mx-auto block px-6 py-4 text-lg rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition-all"
+            >
+        </div>
 
-            <div class="mb-8">
-                <div class="flex flex-wrap gap-3 justify-center">
-                    <button class="category-pill active px-6 py-2 rounded-full bg-gray-100 text-gray-700 font-medium" data-category="all">
-                        All Prompts
-                    </button>
-                    <button class="category-pill px-6 py-2 rounded-full bg-gray-100 text-gray-700 font-medium" data-category="Writing">
-                        Writing
-                    </button>
-                    <button class="category-pill px-6 py-2 rounded-full bg-gray-100 text-gray-700 font-medium" data-category="Programming">
-                        Programming
-                    </button>
-                    <button class="category-pill px-6 py-2 rounded-full bg-gray-100 text-gray-700 font-medium" data-category="Business">
-                        Business
-                    </button>
-                    <button class="category-pill px-6 py-2 rounded-full bg-gray-100 text-gray-700 font-medium" data-category="Design">
-                        Design
-                    </button>
-                    <button class="category-pill px-6 py-2 rounded-full bg-gray-100 text-gray-700 font-medium" data-category="Marketing">
-                        Marketing
-                    </button>
-                </div>
-            </div>
+        <div id="promptsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
 
-            <div class="mb-8">
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search prompts..."
-                    class="w-full max-w-2xl mx-auto block px-6 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent"
-                >
-            </div>
+        <div id="noResults" class="hidden text-center py-16">
+            <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-2xl font-semibold text-gray-700 mb-2">No prompts found</h3>
+            <p class="text-gray-500">Try adjusting your search terms</p>
+        </div>
+    </main>
 
-            <div id="promptsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="text-center py-12 col-span-full">
-                    <div class="inline-block w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
-                    <p class="mt-4 text-gray-600">Loading prompts...</p>
+    <div id="modal" class="hidden fixed inset-0 z-50">
+        <div class="modal-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="modal-content fixed inset-0 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8">
+                    <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+
+                    <div id="modalContent"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="bg-gray-900 text-white py-12 mt-16">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row items-center justify-between">
-                <div class="flex items-center space-x-2 mb-4 md:mb-0">
-                    <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">P</span>
-                    </div>
-                    <span class="text-xl font-bold">PromptFolio Hub</span>
-                </div>
-
-                <div class="flex items-center space-x-6">
-                    <span class="text-gray-400">Premium AI Prompt Marketplace</span>
-                </div>
-            </div>
-
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
-                <p class="text-gray-400">
-                    © 2025 PromptFolio Hub. An AI prompt marketplace for professionals.
-                </p>
-            </div>
-        </div>
-    </footer>
+    <div id="toastContainer" class="fixed bottom-8 right-8 z-50"></div>
 
     <script type="module" src="shop.js"></script>
 </body>
