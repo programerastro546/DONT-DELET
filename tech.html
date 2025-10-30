@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Stack - PromptFolio Hub</title>
+    <meta name="description" content="Deep dive into the technical architecture of PromptFolio Hub. Explore the modern tech stack, dependencies, and implementation details.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1e293b',
+                        'secondary': '#0891b2',
+                        'accent': '#2dd4bf',
+                        'background': '#f8fafc',
+                        'text-primary': '#374151'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .tech-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dependency-node {
+            transition: all 0.2s ease;
+        }
+        
+        .dependency-node:hover {
+            transform: scale(1.05);
+        }
+        
+        .architecture-diagram {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px dashed #cbd5e1;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+        
+        .performance-metric {
+            background: linear-gradient(135deg, #0891b2, #2dd4bf);
+            color: white;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .tech-stack-layer {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 8px 0;
+            position: relative;
+        }
+        
+        .layer-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .layer-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .tech-item {
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #374151;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #2dd4bf;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+        
+        .copy-button:hover {
+            opacity: 1;
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span class="text-xl font-bold text-primary">PromptFolio Hub</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-text-primary hover:text-secondary transition-colors">Home</a>
+                    <a href="demo.html" class="text-text-primary hover:text-secondary transition-colors">Live Demo</a>
+                    <a href="tech.html" class="text-secondary font-semibold">Tech Stack</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/programerastro546/promptfolio-hub" target="_blank" class="text-text-primary hover:text-secondary transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-primary via-secondary to-accent py-16 text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                Technical Architecture
+            </h1>
+            <p class="text-xl text-white/90 max-w-2xl mx-auto">
+                Deep dive into the modern tech stack, dependencies, and implementation details of PromptFolio Hub.
+            </p>
+        </div>
+    </section>
+
+    <!-- Performance Metrics -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-primary mb-4">Performance Metrics</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Optimized for speed, scalability, and developer experience.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="performance-metric">
+                    <div class="metric-value">95</div>
+                    <div class="metric-label">Lighthouse Score</div>
+                </div>
+                <div class="performance-metric">
+                    <div class="metric-value">1.2s</div>
+                    <div class="metric-label">First Load</div>
+                </div>
+                <div class="performance-metric">
+                    <div class="metric-value">45KB</div>
+                    <div class="metric-label">Bundle Size</div>
+                </div>
+                <div class="performance-metric">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Type Coverage</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Overview -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4">
+                    Modern <span class="text-secondary">Technology Stack</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Built with cutting-edge tools and frameworks for optimal performance and developer experience.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Frontend -->
+                <div class="tech-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mb-6">
+                        <span class="text-white font-bold text-2xl">⚛️</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">React 18</h3>
+                    <p class="text-gray-600 mb-4">Modern React with hooks, concurrent features, and optimal performance for building interactive user interfaces.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Concurrent Rendering</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Hooks</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Suspense</span>
+                    </div>
+                </div>
+                
+                <!-- TypeScript -->
+                <div class="tech-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center mb-6">
+                        <span class="text-white font-bold text-2xl">TS</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">TypeScript</h3>
+                    <p class="text-gray-600 mb-4">Strongly typed JavaScript that enhances code quality, maintainability, and developer productivity.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Type Safety</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">IntelliSense</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Refactoring</span>
+                    </div>
+                </div>
+                
+                <!-- Build Tool -->
+                <div class="tech-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mb-6">
+                        <span class="text-white font-bold text-2xl">⚡</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">Vite</h3>
+                    <p class="text-gray-600 mb-4">Lightning fast build tool with hot module replacement and optimized development server.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">ESM</span>
+                        <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">HMR</span>
+                        <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">Optimized</span>
+                    </div>
+                </div>
+                
+                <!-- Styling -->
+                <div class="tech-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center mb-6">
+                        <span class="text-white font-bold text-2xl">🎨</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">Tailwind CSS</h3>
+                    <p class="text-gray-600 mb-4">Utility-first CSS framework for rapid UI development with consistent design systems.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-teal-100 text-teal-700 rounded text-xs">Utility-First</span>
+                        <span class="px-2 py-1 bg-teal-100 text-teal-700 rounded text-xs">Responsive</span>
+                        <span class="px-2 py-1 bg-teal-100 text-teal-700 rounded text-xs">Customizable</span>
+                    </div>
+                </div>
+                
+                <!-- Database -->
+                <div class="tech-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mb-6">
+                        <span class="text-white font-bold text-2xl">🗄️</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">Supabase</h3>
+                    <p class="text-gray-600 mb-4">Open-source Firebase alternative with PostgreSQL database, authentication, and real-time subscriptions.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">PostgreSQL</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Real-time</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Auth</span>
+                    </div>
+                </div>
+                
+                <!-- State Management -->
+                <div class="tech-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mb-6">
+                        <span class="text-white font-bold text-2xl">🔄</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">React Query</h3>
+                    <p class="text-gray-600 mb-4">Powerful data synchronization library for fetching, caching, and updating asynchronous data.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">Caching</span>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">Background Refresh</span>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">Optimistic Updates</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Diagram -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4">
+                    System <span class="text-secondary">Architecture</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Scalable and maintainable architecture designed for modern web applications.
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="tech-stack-layer">
+                    <div class="layer-title">Presentation Layer</div>
+                    <div class="layer-items">
+                        <div class="tech-item">React 18</div>
+                        <div class="tech-item">TypeScript</div>
+                        <div class="tech-item">Tailwind CSS</div>
+                        <div class="tech-item">Shadcn UI</div>
+                        <div class="tech-item">Anime.js</div>
+                    </div>
+                </div>
+                
+                <div class="tech-stack-layer">
+                    <div class="layer-title">State Management</div>
+                    <div class="layer-items">
+                        <div class="tech-item">React Query</div>
+                        <div class="tech-item">Zod</div>
+                        <div class="tech-item">React Hook Form</div>
+                        <div class="tech-item">Zustand</div>
+                    </div>
+                </div>
+                
+                <div class="tech-stack-layer">
+                    <div class="layer-title">Routing & Navigation</div>
+                    <div class="layer-items">
+                        <div class="tech-item">React Router v6</div>
+                        <div class="tech-item">Lucide React</div>
+                    </div>
+                </div>
+                
+                <div class="tech-stack-layer">
+                    <div class="layer-title">Backend Integration</div>
+                    <div class="layer-items">
+                        <div class="tech-item">Supabase Client</div>
+                        <div class="tech-item">PostgreSQL</div>
+                        <div class="tech-item">Real-time Subscriptions</div>
+                    </div>
+                </div>
+                
+                <div class="tech-stack-layer">
+                    <div class="layer-title">Build & Development</div>
+                    <div class="layer-items">
+                        <div class="tech-item">Vite</div>
+                        <div class="tech-item">ESLint</div>
+                        <div class="tech-item">TypeScript Compiler</div>
+                        <div class="tech-item">PostCSS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dependency Analysis -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4">
+                    Dependency <span class="text-secondary">Analysis</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Interactive visualization of npm dependencies and their relationships.
+                </p>
+            </div>
+            
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <div id="dependencyChart" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Development Setup -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4">
+                    Development <span class="text-secondary">Setup</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Get started with PromptFolio Hub development in minutes.
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Installation -->
+                    <div class="bg-gray-50 rounded-xl p-8">
+                        <h3 class="text-xl font-semibold text-primary mb-4">Installation</h3>
+                        <div class="code-container relative">
+                            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                            <div class="code-block">
+                                <div class="text-green-400"># Clone the repository</div>
+                                <div class="text-white">git clone https://github.com/programerastro546/promptfolio-hub.git</div>
+                                <div class="text-white">cd promptfolio-hub</div>
+                                <br>
+                                <div class="text-green-400"># Install dependencies</div>
+                                <div class="text-white">npm install</div>
+                                <br>
+                                <div class="text-green-400"># Start development server</div>
+                                <div class="text-white">npm run dev</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Environment Setup -->
+                    <div class="bg-gray-50 rounded-xl p-8">
+                        <h3 class="text-xl font-semibold text-primary mb-4">Environment Setup</h3>
+                        <div class="code-container relative">
+                            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                            <div class="code-block">
+                                <div class="text-green-400"># Create environment file</div>
+                                <div class="text-white">cp .env.example .env</div>
+                                <br>
+                                <div class="text-green-400"># Configure Supabase</div>
+                                <div class="text-white">VITE_SUPABASE_URL=your_supabase_url</div>
+                                <div class="text-white">VITE_SUPABASE_ANON_KEY=your_anon_key</div>
+                                <br>
+                                <div class="text-green-400"># Database schema</div>
+                                <div class="text-white">supabase/migrations/*.sql</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Build Commands -->
+                <div class="mt-8 bg-gray-50 rounded-xl p-8">
+                    <h3 class="text-xl font-semibold text-primary mb-4">Build & Deploy</h3>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <div class="code-block">
+                                <div class="text-green-400"># Development</div>
+                                <div class="text-white">npm run dev</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="code-block">
+                                <div class="text-green-400"># Production Build</div>
+                                <div class="text-white">npm run build</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="code-block">
+                                <div class="text-green-400"># Preview</div>
+                                <div class="text-white">npm run preview</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                    <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span class="text-xl font-bold">PromptFolio Hub</span>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <a href="https://github.com/programerastro546/promptfolio-hub" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                    <span class="text-gray-400">|</span>
+                    <span class="text-gray-400">Technical Documentation</span>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">
+                    © 2025 PromptFolio Hub. Built with modern web technologies for the AI community.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize dependency chart
+        function initDependencyChart() {
+            const chartDom = document.getElementById('dependencyChart');
+            const myChart = echarts.init(chartDom);
+            
+            const option = {
+                title: {
+                    text: 'NPM Dependencies Network',
+                    left: 'center',
+                    textStyle: {
+                        color: '#374151',
+                        fontSize: 18,
+                        fontWeight: 'bold'
+                    }
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        if (params.dataType === 'node') {
+                            return `<strong>${params.data.name}</strong><br/>
+                                   Version: ${params.data.version || 'latest'}<br/>
+                                   Size: ${params.data.size || 'unknown'}`;
+                        } else {
+                            return `Dependency: ${params.data.source} → ${params.data.target}`;
+                        }
+                    }
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    animation: true,
+                    roam: true,
+                    draggable: true,
+                    focusNodeAdjacency: true,
+                    force: {
+                        repulsion: 1000,
+                        gravity: 0.1,
+                        edgeLength: 150,
+                        layoutAnimation: true
+                    },
+                    data: [
+                        { name: 'react', value: 18, category: 0, version: '18.3.1', size: '45KB' },
+                        { name: 'react-dom', value: 18, category: 0, version: '18.3.1', size: '130KB' },
+                        { name: 'typescript', value: 20, category: 1, version: '5.8.3', size: '3.2MB' },
+                        { name: '@tanstack/react-query', value: 15, category: 2, version: '5.83.0', size: '25KB' },
+                        { name: '@supabase/supabase-js', value: 12, category: 3, version: '2.77.0', size: '35KB' },
+                        { name: 'react-router-dom', value: 14, category: 4, version: '6.30.1', size: '15KB' },
+                        { name: 'tailwindcss', value: 16, category: 5, version: '3.4.17', size: '2.1MB' },
+                        { name: 'vite', value: 18, category: 6, version: '5.4.19', size: '180KB' },
+                        { name: 'lucide-react', value: 10, category: 7, version: '0.462.0', size: '120KB' },
+                        { name: 'zod', value: 8, category: 8, version: '3.25.76', size: '45KB' },
+                        { name: 'react-hook-form', value: 12, category: 9, version: '7.61.1', size: '25KB' },
+                        { name: 'class-variance-authority', value: 6, category: 10, version: '0.7.1', size: '8KB' },
+                        { name: 'clsx', value: 4, category: 11, version: '2.1.1', size: '2KB' },
+                        { name: 'tailwind-merge', value: 5, category: 12, version: '2.6.0', size: '5KB' },
+                        { name: 'date-fns', value: 8, category: 13, version: '3.6.0', size: '180KB' },
+                        { name: 'recharts', value: 10, category: 14, version: '2.15.4', size: '200KB' }
+                    ],
+                    links: [
+                        { source: 'react', target: 'react-dom' },
+                        { source: 'react', target: 'typescript' },
+                        { source: 'react', target: '@tanstack/react-query' },
+                        { source: 'react', target: 'react-router-dom' },
+                        { source: 'react', target: 'lucide-react' },
+                        { source: 'react', target: 'react-hook-form' },
+                        { source: '@tanstack/react-query', target: '@supabase/supabase-js' },
+                        { source: 'react-hook-form', target: 'zod' },
+                        { source: 'tailwindcss', target: 'class-variance-authority' },
+                        { source: 'tailwindcss', target: 'clsx' },
+                        { source: 'tailwindcss', target: 'tailwind-merge' },
+                        { source: 'vite', target: 'typescript' },
+                        { source: 'recharts', target: 'react' },
+                        { source: 'date-fns', target: 'react' }
+                    ],
+                    categories: [
+                        { name: 'Core React' },
+                        { name: 'TypeScript' },
+                        { name: 'Data Management' },
+                        { name: 'Backend' },
+                        { name: 'Routing' },
+                        { name: 'Styling' },
+                        { name: 'Build Tools' },
+                        { name: 'Icons' },
+                        { name: 'Validation' },
+                        { name: 'Forms' },
+                        { name: 'Components' },
+                        { name: 'Utilities' },
+                        { name: 'CSS' },
+                        { name: 'Dates' },
+                        { name: 'Charts' }
+                    ],
+                    itemStyle: {
+                        borderRadius: 50,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    },
+                    lineStyle: {
+                        color: '#0891b2',
+                        width: 2,
+                        curveness: 0.1
+                    },
+                    emphasis: {
+                        focus: 'adjacency',
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.3)'
+                        }
+                    }
+                }],
+                color: ['#0891b2', '#2dd4bf', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#6366f1', '#14b8a6', '#eab308', '#a855f7', '#22c55e']
+            };
+            
+            myChart.setOption(option);
+            
+            // Make chart responsive
+            window.addEventListener('resize', () => {
+                myChart.resize();
+            });
+        }
+
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#2dd4bf';
+                }, 2000);
+            });
+        }
+
+        // Initialize animations
+        function initAnimations() {
+            // Tech cards entrance animation
+            anime({
+                targets: '.tech-card',
+                translateY: [50, 0],
+                opacity: [0, 1],
+                duration: 800,
+                delay: anime.stagger(100),
+                easing: 'easeOutQuart'
+            });
+            
+            // Performance metrics animation
+            anime({
+                targets: '.performance-metric',
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 600,
+                delay: anime.stagger(200),
+                easing: 'easeOutQuart'
+            });
+            
+            // Architecture layers animation
+            anime({
+                targets: '.tech-stack-layer',
+                translateX: [-30, 0],
+                opacity: [0, 1],
+                duration: 700,
+                delay: anime.stagger(150),
+                easing: 'easeOutQuart'
+            });
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initDependencyChart();
+            initAnimations();
+        });
+    </script>
+</body>
+</html>

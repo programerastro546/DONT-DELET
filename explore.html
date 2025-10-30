@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Code - PromptFolio Hub</title>
+    <meta name="description" content="Explore the source code of PromptFolio Hub. Interactive file explorer with syntax highlighting and code analysis.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1e293b',
+                        'secondary': '#0891b2',
+                        'accent': '#2dd4bf',
+                        'background': '#f8fafc',
+                        'text-primary': '#374151'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Prism CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    
+    <style>
+        .code-explorer {
+            height: calc(100vh - 80px);
+            background: #1e1e1e;
+        }
+        
+        .file-tree {
+            background: #252526;
+            border-right: 1px solid #3e3e42;
+            overflow-y: auto;
+        }
+        
+        .code-viewer {
+            background: #1e1e1e;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .file-item:hover {
+            background: #2a2d2e;
+            border-left-color: #2dd4bf;
+        }
+        
+        .file-item.active {
+            background: #094771;
+            border-left-color: #2dd4bf;
+        }
+        
+        .file-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            display: inline-block;
+        }
+        
+        .code-header {
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+        
+        .code-content {
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .breadcrumb {
+            color: #cccccc;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-separator {
+            margin: 0 8px;
+            color: #6b7280;
+        }
+        
+        .file-stats {
+            display: flex;
+            gap: 16px;
+            margin-left: auto;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .search-box {
+            background: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #2dd4bf;
+        }
+        
+        .search-box::placeholder {
+            color: #9ca3af;
+        }
+        
+        .folder-structure {
+            margin-left: 12px;
+        }
+        
+        .folder-item {
+            cursor: pointer;
+            padding: 4px 0;
+            color: #cccccc;
+            font-size: 14px;
+        }
+        
+        .folder-item:hover {
+            color: #2dd4bf;
+        }
+        
+        .folder-item.expanded {
+            font-weight: 600;
+        }
+        
+        .file-tabs {
+            display: flex;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+        }
+        
+        .file-tab {
+            padding: 8px 16px;
+            background: #2d2d30;
+            border-right: 1px solid #3e3e42;
+            cursor: pointer;
+            font-size: 13px;
+            color: #cccccc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-tab.active {
+            background: #1e1e1e;
+            border-bottom: 2px solid #2dd4bf;
+        }
+        
+        .file-tab:hover {
+            background: #3e3e42;
+        }
+        
+        .tab-close {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .tab-close:hover {
+            background: #e74c3c;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #2dd4bf;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+        
+        .copy-button:hover {
+            opacity: 1;
+        }
+        
+        .code-container {
+            position: relative;
+        }
+        
+        pre[class*="language-"] {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+        
+        code[class*="language-"] {
+            background: transparent;
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span class="text-xl font-bold text-primary">PromptFolio Hub</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-text-primary hover:text-secondary transition-colors">Home</a>
+                    <a href="explore.html" class="text-secondary font-semibold">Explore Code</a>
+                    <a href="demo.html" class="text-text-primary hover:text-secondary transition-colors">Live Demo</a>
+                    <a href="tech.html" class="text-text-primary hover:text-secondary transition-colors">Tech Stack</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/programerastro546/promptfolio-hub" target="_blank" class="text-text-primary hover:text-secondary transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Code Explorer -->
+    <div class="code-explorer flex">
+        <!-- File Tree -->
+        <div class="file-tree w-80 flex-shrink-0">
+            <div class="p-4">
+                <input type="text" class="search-box" placeholder="Search files..." id="fileSearch">
+                
+                <div class="folder-item expanded" data-folder="root">
+                    📁 promptfolio-hub
+                </div>
+                
+                <div class="folder-structure">
+                    <div class="folder-item" data-folder="src">
+                        📁 src
+                    </div>
+                    <div class="folder-structure">
+                        <div class="file-item" data-file="src/App.tsx">
+                            <span class="file-icon">⚛️</span>App.tsx
+                        </div>
+                        <div class="file-item" data-file="src/main.tsx">
+                            <span class="file-icon">⚛️</span>main.tsx
+                        </div>
+                        <div class="folder-item" data-folder="src/pages">
+                            📁 pages
+                        </div>
+                        <div class="folder-structure">
+                            <div class="file-item" data-file="src/pages/Browse.tsx">
+                                <span class="file-icon">📄</span>Browse.tsx
+                            </div>
+                            <div class="file-item" data-file="src/pages/Submit.tsx">
+                                <span class="file-icon">📄</span>Submit.tsx
+                            </div>
+                            <div class="file-item" data-file="src/pages/PromptDetail.tsx">
+                                <span class="file-icon">📄</span>PromptDetail.tsx
+                            </div>
+                        </div>
+                        <div class="folder-item" data-folder="src/components">
+                            📁 components
+                        </div>
+                        <div class="folder-structure">
+                            <div class="file-item" data-file="src/components/PromptCard.tsx">
+                                <span class="file-icon">⚛️</span>PromptCard.tsx
+                            </div>
+                            <div class="file-item" data-file="src/components/SearchBar.tsx">
+                                <span class="file-icon">⚛️</span>SearchBar.tsx
+                            </div>
+                            <div class="file-item" data-file="src/components/TagFilter.tsx">
+                                <span class="file-icon">⚛️</span>TagFilter.tsx
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="file-item" data-file="package.json">
+                        <span class="file-icon">📦</span>package.json
+                    </div>
+                    <div class="file-item" data-file="tsconfig.json">
+                        <span class="file-icon">⚙️</span>tsconfig.json
+                    </div>
+                    <div class="file-item" data-file="vite.config.ts">
+                        <span class="file-icon">⚙️</span>vite.config.ts
+                    </div>
+                    <div class="file-item" data-file="tailwind.config.ts">
+                        <span class="file-icon">🎨</span>tailwind.config.ts
+                    </div>
+                    <div class="file-item" data-file="README.md">
+                        <span class="file-icon">📚</span>README.md
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Code Viewer -->
+        <div class="code-viewer flex-1">
+            <!-- File Tabs -->
+            <div class="file-tabs" id="fileTabs">
+                <div class="file-tab active" data-file="src/App.tsx">
+                    <span>App.tsx</span>
+                    <span class="tab-close" onclick="closeTab('src/App.tsx')">×</span>
+                </div>
+            </div>
+            
+            <!-- Code Header -->
+            <div class="code-header">
+                <div class="breadcrumb" id="breadcrumb">
+                    <span>src</span>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>App.tsx</span>
+                </div>
+                
+                <div class="file-stats" id="fileStats">
+                    <span>TypeScript</span>
+                    <span>•</span>
+                    <span>31 lines</span>
+                    <span>•</span>
+                    <span>1.06 KB</span>
+                </div>
+            </div>
+            
+            <!-- Code Content -->
+            <div class="code-container">
+                <button class="copy-button" onclick="copyCode()">Copy</button>
+                <div class="code-content" id="codeContent">
+                    <pre><code class="language-typescript" id="codeBlock">import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Browse from "./pages/Browse";
+import PromptDetail from "./pages/PromptDetail";
+import Submit from "./pages/Submit";
+import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  &lt;QueryClientProvider client={queryClient}&gt;
+    &lt;TooltipProvider&gt;
+      &lt;Toaster /&gt;
+      &lt;Sonner /&gt;
+      &lt;BrowserRouter&gt;
+        &lt;Routes&gt;
+          &lt;Route path="/" element={&lt;Browse /&gt;} /&gt;
+          &lt;Route path="/prompt/:id" element={&lt;PromptDetail /&gt;} /&gt;
+          &lt;Route path="/submit" element={&lt;Submit /&gt;} /&gt;
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          &lt;Route path="*" element={&lt;NotFound /&gt;} /&gt;
+        &lt;/Routes&gt;
+      &lt;/BrowserRouter&gt;
+    &lt;/TooltipProvider&gt;
+  &lt;/QueryClientProvider&gt;
+);
+
+export default App;</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File contents database
+        const fileContents = {
+            'src/App.tsx': {
+                content: `import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Browse from "./pages/Browse";
+import PromptDetail from "./pages/PromptDetail";
+import Submit from "./pages/Submit";
+import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Browse />} />
+          <Route path="/prompt/:id" element={<PromptDetail />} />
+          <Route path="/submit" element={<Submit />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;`,
+                language: 'typescript',
+                lines: 31,
+                size: '1.06 KB'
+            },
+            'src/pages/Browse.tsx': {
+                content: `import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { PromptCard } from "@/components/PromptCard";
+import { SearchBar } from "@/components/SearchBar";
+import { TagFilter } from "@/components/TagFilter";
+import { Button } from "@/components/ui/button";
+import { Sparkles, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import heroImage from "@/assets/hero-image.jpg";
+
+interface Prompt {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  rating: number;
+  author: string;
+}
+
+const Browse = () => {
+  const navigate = useNavigate();
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [allTags, setAllTags] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPrompts();
+  }, []);
+
+  const fetchPrompts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("prompts")
+        .select("*")
+        .eq("status", "approved")
+        .order("rating", { ascending: false });
+
+      if (error) throw error;
+
+      if (data) {
+        setPrompts(data);
+        
+        // Extract unique tags
+        const tags = new Set<string>();
+        data.forEach((prompt) => {
+          prompt.tags.forEach((tag: string) => tags.add(tag));
+        });
+        setAllTags(Array.from(tags).sort());
+      }
+    } catch (error) {
+      console.error("Error fetching prompts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTagToggle = (tag: string) => {
+    if (tag === "") {
+      setSelectedTags([]);
+    } else {
+      setSelectedTags((prev) =>
+        prev.includes(tag)
+          ? prev.filter((t) => t !== tag)
+          : [...prev, tag]
+      );
+    }
+  };
+
+  const filteredPrompts = prompts.filter((prompt) => {
+    const matchesSearch =
+      prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      prompt.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      prompt.tags.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    const matchesTags =
+      selectedTags.length === 0 ||
+      selectedTags.some((tag) => prompt.tags.includes(tag));
+
+    return matchesSearch && matchesTags;
+  });
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section 
+        className="relative overflow-hidden bg-gradient-to-br from-primary via-secondary to-accent py-24 px-4"
+        style={{
+          backgroundImage: \`linear-gradient(rgba(8, 145, 178, 0.9), rgba(45, 212, 191, 0.9)), url(\${heroImage})\`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="container mx-auto text-center space-y-8 relative z-10">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+            <Sparkles className="w-4 h-4 text-white" />
+            <span className="text-sm font-medium text-white">Discover the best AI prompts</span>
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+            PromptShelf
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+            A curated collection of high-quality AI prompts for ChatGPT, Claude, and Midjourney
+          </p>
+
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Button
+              size="lg"
+              onClick={() => navigate("/submit")}
+              className="bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all text-lg px-8"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Submit Prompt
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Search & Filter Section */}
+      <section className="container mx-auto px-4 -mt-8 relative z-20">
+        <div className="bg-card rounded-2xl shadow-2xl p-8 space-y-6">
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search by keyword, tag, or use case..."
+          />
+          
+          <TagFilter
+            tags={allTags}
+            selectedTags={selectedTags}
+            onTagToggle={handleTagToggle}
+          />
+        </div>
+      </section>
+
+      {/* Prompts Grid */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="mb-8 flex items-center justify-between">
+          <h2 className="text-3xl font-bold text-foreground">
+            {filteredPrompts.length} {filteredPrompts.length === 1 ? "Prompt" : "Prompts"}
+          </h2>
+        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-64 bg-muted animate-pulse rounded-xl" />
+            ))}
+          </div>
+        ) : filteredPrompts.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-xl text-muted-foreground">
+              No prompts found. Try adjusting your filters.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPrompts.map((prompt) => (
+              <PromptCard key={prompt.id} {...prompt} />
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+};
+
+export default Browse;`,
+                language: 'typescript',
+                lines: 173,
+                size: '5.55 KB'
+            },
+            'package.json': {
+                content: `{
+  "name": "vite_react_shadcn_ts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.10.0",
+    "@radix-ui/react-accordion": "^1.2.11",
+    "@radix-ui/react-alert-dialog": "^1.1.14",
+    "@radix-ui/react-aspect-ratio": "^1.1.7",
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-checkbox": "^1.3.2",
+    "@radix-ui/react-collapsible": "^1.1.11",
+    "@radix-ui/react-context-menu": "^2.2.15",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
+    "@radix-ui/react-hover-card": "^1.1.14",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-menubar": "^1.1.15",
+    "@radix-ui/react-navigation-menu": "^1.2.13",
+    "@radix-ui/react-popover": "^1.1.14",
+    "@radix-ui/react-progress": "^1.1.7",
+    "@radix-ui/react-radio-group": "^1.3.7",
+    "@radix-ui/react-scroll-area": "^1.2.9",
+    "@radix-ui/react-select": "^2.2.5",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slider": "^1.3.5",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.5",
+    "@radix-ui/react-tabs": "^1.1.12",
+    "@radix-ui/react-toast": "^1.2.14",
+    "@radix-ui/react-toggle": "^1.1.9",
+    "@radix-ui/react-toggle-group": "^1.1.10",
+    "@radix-ui/react-tooltip": "^1.2.7",
+    "@supabase/supabase-js": "^2.77.0",
+    "@tanstack/react-query": "^5.83.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "date-fns": "^3.6.0",
+    "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.4.2",
+    "lucide-react": "^0.462.0",
+    "next-themes": "^0.3.0",
+    "react": "^18.3.1",
+    "react-day-picker": "^8.10.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.61.1",
+    "react-resizable-panels": "^2.1.9",
+    "react-router-dom": "^6.30.1",
+    "recharts": "^2.15.4",
+    "sonner": "^1.7.4",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7",
+    "vaul": "^0.9.9",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/node": "^22.16.5",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react-swc": "^3.11.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.32.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^15.15.0",
+    "lovable-tagger": "^1.1.11",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0",
+    "vite": "^5.4.19"
+  }
+}`,
+                language: 'json',
+                lines: 84,
+                size: '2.69 KB'
+            }
+        };
+
+        let currentFile = 'src/App.tsx';
+        let openTabs = ['src/App.tsx'];
+
+        // Initialize code explorer
+        function initCodeExplorer() {
+            setupFileTree();
+            setupFileSearch();
+            loadFile(currentFile);
+        }
+
+        // Setup file tree interactions
+        function setupFileTree() {
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const filePath = item.dataset.file;
+                    if (filePath && fileContents[filePath]) {
+                        openFile(filePath);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.folder-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    item.classList.toggle('expanded');
+                    const structure = item.nextElementSibling;
+                    if (structure && structure.classList.contains('folder-structure')) {
+                        structure.style.display = structure.style.display === 'none' ? 'block' : 'none';
+                    }
+                });
+            });
+        }
+
+        // Setup file search
+        function setupFileSearch() {
+            const searchBox = document.getElementById('fileSearch');
+            searchBox.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                document.querySelectorAll('.file-item').forEach(item => {
+                    const fileName = item.textContent.toLowerCase();
+                    item.style.display = fileName.includes(query) ? 'block' : 'none';
+                });
+            });
+        }
+
+        // Open a file
+        function openFile(filePath) {
+            if (!openTabs.includes(filePath)) {
+                openTabs.push(filePath);
+                addTab(filePath);
+            }
+            
+            currentFile = filePath;
+            loadFile(filePath);
+            updateActiveTab();
+        }
+
+        // Add a tab
+        function addTab(filePath) {
+            const tabsContainer = document.getElementById('fileTabs');
+            const tab = document.createElement('div');
+            tab.className = 'file-tab';
+            tab.dataset.file = filePath;
+            tab.innerHTML = `
+                <span>${filePath.split('/').pop()}</span>
+                <span class="tab-close" onclick="closeTab('${filePath}')">×</span>
+            `;
+            
+            tab.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('tab-close')) {
+                    openFile(filePath);
+                }
+            });
+            
+            tabsContainer.appendChild(tab);
+        }
+
+        // Close a tab
+        function closeTab(filePath) {
+            const index = openTabs.indexOf(filePath);
+            if (index > -1) {
+                openTabs.splice(index, 1);
+                const tab = document.querySelector(`[data-file="${filePath}"]`);
+                if (tab) tab.remove();
+                
+                if (currentFile === filePath) {
+                    currentFile = openTabs[0] || '';
+                    if (currentFile) {
+                        loadFile(currentFile);
+                        updateActiveTab();
+                    }
+                }
+            }
+        }
+
+        // Update active tab
+        function updateActiveTab() {
+            document.querySelectorAll('.file-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.file === currentFile) {
+                    tab.classList.add('active');
+                }
+            });
+        }
+
+        // Load file content
+        function loadFile(filePath) {
+            const fileData = fileContents[filePath];
+            if (!fileData) return;
+
+            // Update breadcrumb
+            const breadcrumb = document.getElementById('breadcrumb');
+            const pathParts = filePath.split('/');
+            breadcrumb.innerHTML = pathParts.map((part, index) => {
+                const separator = index < pathParts.length - 1 ? '<span class="breadcrumb-separator">/</span>' : '';
+                return `<span>${part}</span>${separator}`;
+            }).join('');
+
+            // Update file stats
+            const fileStats = document.getElementById('fileStats');
+            const languageMap = {
+                'typescript': 'TypeScript',
+                'javascript': 'JavaScript',
+                'json': 'JSON',
+                'css': 'CSS',
+                'markup': 'HTML'
+            };
+            fileStats.innerHTML = `
+                <span>${languageMap[fileData.language] || 'Unknown'}</span>
+                <span>•</span>
+                <span>${fileData.lines} lines</span>
+                <span>•</span>
+                <span>${fileData.size}</span>
+            `;
+
+            // Update code content
+            const codeBlock = document.getElementById('codeBlock');
+            const codeContent = document.getElementById('codeContent');
+            
+            codeBlock.textContent = fileData.content;
+            codeBlock.className = `language-${fileData.language}`;
+            
+            // Re-highlight syntax
+            if (window.Prism) {
+                Prism.highlightElement(codeBlock);
+            }
+
+            // Animate content change
+            anime({
+                targets: codeContent,
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuart'
+            });
+        }
+
+        // Copy code functionality
+        function copyCode() {
+            const codeBlock = document.getElementById('codeBlock');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Show success message
+                const button = document.querySelector('.copy-button');
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#2dd4bf';
+                }, 2000);
+            });
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initCodeExplorer);
+    </script>
+</body>
+</html>

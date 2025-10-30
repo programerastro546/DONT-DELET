@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Demo - PromptFolio Hub</title>
+    <meta name="description" content="Try the interactive demo of PromptFolio Hub. Search, filter, and explore AI prompts with our working prototype.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1e293b',
+                        'secondary': '#0891b2',
+                        'accent': '#2dd4bf',
+                        'background': '#f8fafc',
+                        'text-primary': '#374151'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .prompt-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .prompt-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tag {
+            transition: all 0.2s ease;
+        }
+        
+        .tag:hover {
+            transform: scale(1.05);
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .suggestion-item:hover {
+            background: #f9fafb;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .rating-stars {
+            color: #fbbf24;
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .filter-tag {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .filter-tag.active {
+            background: #0891b2;
+            color: white;
+        }
+        
+        .filter-tag:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span class="text-xl font-bold text-primary">PromptFolio Hub</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-text-primary hover:text-secondary transition-colors">Home</a>
+                    <a href="demo.html" class="text-secondary font-semibold">Live Demo</a>
+                    <a href="tech.html" class="text-text-primary hover:text-secondary transition-colors">Tech Stack</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/programerastro546/promptfolio-hub" target="_blank" class="text-text-primary hover:text-secondary transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-primary via-secondary to-accent py-16 text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                Interactive Prompt Library
+            </h1>
+            <p class="text-xl text-white/90 max-w-2xl mx-auto">
+                Experience the power of PromptFolio Hub with our live demo. Search, filter, and explore curated AI prompts.
+            </p>
+        </div>
+    </section>
+
+    <!-- Search and Filter Section -->
+    <section class="py-8 bg-white border-b border-gray-200">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <!-- Search Bar -->
+                <div class="search-container mb-6">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="searchInput"
+                            placeholder="Search prompts by keyword, tag, or use case..."
+                            class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+                        >
+                        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <div id="searchSuggestions" class="search-suggestions" style="display: none;"></div>
+                </div>
+                
+                <!-- Filter Tags -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="text-sm text-gray-600 mr-2">Filter by tags:</span>
+                    <div id="tagFilters" class="flex flex-wrap gap-2">
+                        <!-- Tags will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Results Info -->
+                <div class="flex items-center justify-between">
+                    <div id="resultsInfo" class="text-sm text-gray-600">
+                        Showing <span id="resultCount">0</span> prompts
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <label class="text-sm text-gray-600">Sort by:</label>
+                        <select id="sortSelect" class="text-sm border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-secondary">
+                            <option value="rating">Rating</option>
+                            <option value="title">Title</option>
+                            <option value="author">Author</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prompts Grid -->
+    <section class="py-12">
+        <div class="container mx-auto px-6">
+            <div id="promptsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Prompt cards will be populated by JavaScript -->
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" style="display: none;">
+                <div class="loading-skeleton h-64 rounded-xl"></div>
+                <div class="loading-skeleton h-64 rounded-xl"></div>
+                <div class="loading-skeleton h-64 rounded-xl"></div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-20" style="display: none;">
+                <div class="text-6xl mb-4">🔍</div>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No prompts found</h3>
+                <p class="text-gray-500">Try adjusting your search terms or filters.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prompt Detail Modal -->
+    <div id="promptModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <h2 id="modalTitle" class="text-2xl font-bold text-primary"></h2>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex items-center gap-4 mb-3">
+                        <span id="modalAuthor" class="text-sm text-gray-600"></span>
+                        <span class="text-gray-400">•</span>
+                        <span id="modalPlatform" class="text-sm text-gray-600"></span>
+                        <span class="text-gray-400">•</span>
+                        <div id="modalRating" class="rating-stars"></div>
+                    </div>
+                    <div id="modalTags" class="flex flex-wrap gap-2 mb-4">
+                        <!-- Tags will be populated -->
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-2">Prompt Content</h3>
+                    <div id="modalContent" class="bg-gray-50 p-4 rounded-lg font-mono text-sm leading-relaxed whitespace-pre-wrap"></div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="copyPrompt()" class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors">
+                        Copy Prompt
+                    </button>
+                    <button onclick="closeModal()" class="border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                    <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span class="text-xl font-bold">PromptFolio Hub</span>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <a href="https://github.com/programerastro546/promptfolio-hub" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                    <span class="text-gray-400">|</span>
+                    <span class="text-gray-400">Interactive Demo</span>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">
+                    © 2025 PromptFolio Hub. Experience the future of AI prompt management.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Demo prompts data
+        const DEMO_PROMPTS = [
+            {
+                id: '1',
+                title: 'Creative Writing Assistant',
+                content: 'Act as a creative writing assistant. Help me develop characters, plot twists, and engaging dialogue for my fantasy novel. Provide specific examples and techniques for improving narrative flow.',
+                tags: ['creative', 'writing', 'fantasy', 'storytelling'],
+                rating: 4.8,
+                author: 'Sarah Chen',
+                platform: 'ChatGPT'
+            },
+            {
+                id: '2',
+                title: 'Code Review Expert',
+                content: 'You are an experienced software engineer. Review my code for best practices, performance optimizations, and potential bugs. Explain your suggestions with clear reasoning and examples.',
+                tags: ['programming', 'code-review', 'best-practices', 'optimization'],
+                rating: 4.9,
+                author: 'Mike Rodriguez',
+                platform: 'Claude'
+            },
+            {
+                id: '3',
+                title: 'Marketing Strategy Generator',
+                content: 'Create comprehensive marketing strategies for tech startups. Include social media campaigns, content marketing plans, and growth hacking techniques with measurable KPIs.',
+                tags: ['marketing', 'strategy', 'startups', 'growth'],
+                rating: 4.7,
+                author: 'Emma Thompson',
+                platform: 'ChatGPT'
+            },
+            {
+                id: '4',
+                title: 'Data Analysis Interpreter',
+                content: 'Help me understand and interpret complex datasets. Explain statistical concepts, create visualizations, and provide actionable insights from raw data.',
+                tags: ['data-analysis', 'statistics', 'visualization', 'insights'],
+                rating: 4.6,
+                author: 'David Kim',
+                platform: 'Claude'
+            },
+            {
+                id: '5',
+                title: 'UI/UX Design Consultant',
+                content: 'Act as a UI/UX design expert. Provide feedback on interface designs, suggest improvements for user experience, and recommend modern design patterns and trends.',
+                tags: ['design', 'ui-ux', 'interface', 'user-experience'],
+                rating: 4.8,
+                author: 'Lisa Wang',
+                platform: 'ChatGPT'
+            },
+            {
+                id: '6',
+                title: 'Business Plan Analyzer',
+                content: 'Analyze business plans and provide strategic recommendations. Identify potential risks, market opportunities, and areas for improvement with detailed financial projections.',
+                tags: ['business', 'strategy', 'analysis', 'planning'],
+                rating: 4.5,
+                author: 'James Wilson',
+                platform: 'ChatGPT'
+            },
+            {
+                id: '7',
+                title: 'Language Learning Partner',
+                content: 'Be my language learning conversation partner. Correct my grammar, suggest better expressions, and help me practice natural conversation in Spanish.',
+                tags: ['language', 'learning', 'spanish', 'conversation'],
+                rating: 4.7,
+                author: 'Maria Garcia',
+                platform: 'Claude'
+            },
+            {
+                id: '8',
+                title: 'Recipe Creator and Modifier',
+                content: 'Create innovative recipes based on dietary restrictions and available ingredients. Suggest modifications for allergies, preferences, and cooking methods.',
+                tags: ['cooking', 'recipes', 'dietary', 'food'],
+                rating: 4.4,
+                author: 'Chef Robert',
+                platform: 'ChatGPT'
+            },
+            {
+                id: '9',
+                title: 'Fitness and Nutrition Coach',
+                content: 'Design personalized workout routines and meal plans based on fitness goals, available equipment, and dietary preferences. Include progression tracking.',
+                tags: ['fitness', 'nutrition', 'health', 'workout'],
+                rating: 4.6,
+                author: 'Alex Johnson',
+                platform: 'ChatGPT'
+            },
+            {
+                id: '10',
+                title: 'Travel Itinerary Planner',
+                content: 'Create detailed travel itineraries with local insights, budget considerations, and alternative options. Include cultural tips and off-the-beaten-path recommendations.',
+                tags: ['travel', 'planning', 'itinerary', 'culture'],
+                rating: 4.8,
+                author: 'Travel Expert Lisa',
+                platform: 'Claude'
+            },
+            {
+                id: '11',
+                title: 'Meditation and Mindfulness Guide',
+                content: 'Guide me through meditation sessions, provide mindfulness exercises, and help develop a consistent practice routine for stress reduction and mental clarity.',
+                tags: ['meditation', 'mindfulness', 'wellness', 'mental-health'],
+                rating: 4.7,
+                author: 'Zen Master Tom',
+                platform: 'ChatGPT'
+            },
+            {
+                id: '12',
+                title: 'Financial Advisor Assistant',
+                content: 'Provide financial planning advice, investment strategies, and budget optimization tips. Help analyze spending patterns and suggest improvements for financial goals.',
+                tags: ['finance', 'investing', 'budgeting', 'planning'],
+                rating: 4.5,
+                author: 'Financial Guru Amy',
+                platform: 'Claude'
+            }
+        ];
+
+        let currentPrompts = [...DEMO_PROMPTS];
+        let selectedTags = [];
+        let currentSort = 'rating';
+
+        // Initialize the demo
+        function initDemo() {
+            setupTagFilters();
+            setupSearch();
+            setupSort();
+            renderPrompts();
+            setupModal();
+        }
+
+        // Setup tag filters
+        function setupTagFilters() {
+            const allTags = [...new Set(DEMO_PROMPTS.flatMap(prompt => prompt.tags))].sort();
+            const tagFiltersContainer = document.getElementById('tagFilters');
+            
+            allTags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'filter-tag px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm';
+                tagElement.textContent = tag;
+                tagElement.addEventListener('click', () => toggleTag(tag, tagElement));
+                tagFiltersContainer.appendChild(tagElement);
+            });
+        }
+
+        // Toggle tag filter
+        function toggleTag(tag, element) {
+            if (selectedTags.includes(tag)) {
+                selectedTags = selectedTags.filter(t => t !== tag);
+                element.classList.remove('active');
+            } else {
+                selectedTags.push(tag);
+                element.classList.add('active');
+            }
+            
+            filterAndRenderPrompts();
+        }
+
+        // Setup search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const suggestionsContainer = document.getElementById('searchSuggestions');
+            
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                showSearchSuggestions(query);
+                filterAndRenderPrompts();
+            });
+            
+            searchInput.addEventListener('focus', () => {
+                const query = searchInput.value;
+                if (query) showSearchSuggestions(query);
+            });
+            
+            searchInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    suggestionsContainer.style.display = 'none';
+                }, 200);
+            });
+        }
+
+        // Show search suggestions
+        function showSearchSuggestions(query) {
+            const suggestionsContainer = document.getElementById('searchSuggestions');
+            
+            if (!query) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            
+            const suggestions = [];
+            
+            // Add tag suggestions
+            DEMO_PROMPTS.forEach(prompt => {
+                prompt.tags.forEach(tag => {
+                    if (tag.includes(query.toLowerCase()) && !suggestions.includes(tag)) {
+                        suggestions.push(tag);
+                    }
+                });
+            });
+            
+            // Add title suggestions
+            DEMO_PROMPTS.forEach(prompt => {
+                if (prompt.title.toLowerCase().includes(query.toLowerCase())) {
+                    suggestions.push(prompt.title);
+                }
+            });
+            
+            if (suggestions.length > 0) {
+                suggestionsContainer.innerHTML = suggestions.slice(0, 5).map(suggestion => 
+                    `<div class="suggestion-item" onclick="selectSuggestion('${suggestion}')">${suggestion}</div>`
+                ).join('');
+                suggestionsContainer.style.display = 'block';
+            } else {
+                suggestionsContainer.style.display = 'none';
+            }
+        }
+
+        // Select search suggestion
+        function selectSuggestion(suggestion) {
+            document.getElementById('searchInput').value = suggestion;
+            document.getElementById('searchSuggestions').style.display = 'none';
+            filterAndRenderPrompts();
+        }
+
+        // Setup sort functionality
+        function setupSort() {
+            const sortSelect = document.getElementById('sortSelect');
+            sortSelect.addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                filterAndRenderPrompts();
+            });
+        }
+
+        // Filter and render prompts
+        function filterAndRenderPrompts() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Filter by search query
+            let filtered = DEMO_PROMPTS.filter(prompt => {
+                const matchesSearch = !searchQuery || 
+                    prompt.title.toLowerCase().includes(searchQuery) ||
+                    prompt.content.toLowerCase().includes(searchQuery) ||
+                    prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery));
+                
+                const matchesTags = selectedTags.length === 0 || 
+                    selectedTags.some(tag => prompt.tags.includes(tag));
+                
+                return matchesSearch && matchesTags;
+            });
+            
+            // Sort prompts
+            filtered.sort((a, b) => {
+                switch (currentSort) {
+                    case 'rating':
+                        return b.rating - a.rating;
+                    case 'title':
+                        return a.title.localeCompare(b.title);
+                    case 'author':
+                        return a.author.localeCompare(b.author);
+                    default:
+                        return 0;
+                }
+            });
+            
+            currentPrompts = filtered;
+            renderPrompts();
+        }
+
+        // Render prompts
+        function renderPrompts() {
+            const grid = document.getElementById('promptsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const resultCount = document.getElementById('resultCount');
+            
+            resultCount.textContent = currentPrompts.length;
+            
+            if (currentPrompts.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+            
+            grid.innerHTML = currentPrompts.map(prompt => `
+                <div class="prompt-card bg-white p-6 rounded-xl shadow-lg border border-gray-100" onclick="openModal('${prompt.id}')">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-primary line-clamp-2">${prompt.title}</h3>
+                        <div class="rating-stars text-sm ml-2">
+                            ${getRatingStars(prompt.rating)}
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-3">${prompt.content}</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${prompt.tags.slice(0, 3).map(tag => `
+                            <span class="tag px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">${tag}</span>
+                        `).join('')}
+                        ${prompt.tags.length > 3 ? `<span class="text-xs text-gray-400">+${prompt.tags.length - 3} more</span>` : ''}
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span>by ${prompt.author}</span>
+                        <span class="bg-gray-100 px-2 py-1 rounded">${prompt.platform}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Animate cards
+            anime({
+                targets: '.prompt-card',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 600,
+                delay: anime.stagger(100),
+                easing: 'easeOutQuart'
+            });
+        }
+
+        // Get rating stars
+        function getRatingStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            return '★'.repeat(fullStars) + 
+                   (hasHalfStar ? '☆' : '') + 
+                   '☆'.repeat(emptyStars) + 
+                   ` ${rating.toFixed(1)}`;
+        }
+
+        // Setup modal
+        function setupModal() {
+            const modal = document.getElementById('promptModal');
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Open modal
+        function openModal(promptId) {
+            const prompt = DEMO_PROMPTS.find(p => p.id === promptId);
+            if (!prompt) return;
+            
+            document.getElementById('modalTitle').textContent = prompt.title;
+            document.getElementById('modalAuthor').textContent = `by ${prompt.author}`;
+            document.getElementById('modalPlatform').textContent = prompt.platform;
+            document.getElementById('modalRating').innerHTML = getRatingStars(prompt.rating);
+            document.getElementById('modalContent').textContent = prompt.content;
+            
+            const tagsContainer = document.getElementById('modalTags');
+            tagsContainer.innerHTML = prompt.tags.map(tag => 
+                `<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">${tag}</span>`
+            ).join('');
+            
+            document.getElementById('promptModal').classList.add('active');
+            
+            // Store current prompt for copy functionality
+            window.currentPrompt = prompt.content;
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('promptModal').classList.remove('active');
+        }
+
+        // Copy prompt
+        function copyPrompt() {
+            if (window.currentPrompt) {
+                navigator.clipboard.writeText(window.currentPrompt).then(() => {
+                    // Show success message
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    button.style.background = '#10b981';
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '#0891b2';
+                    }, 2000);
+                });
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initDemo);
+    </script>
+</body>
+</html>

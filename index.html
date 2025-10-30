@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptFolio Hub - Curated AI Prompt Collection</title>
+    <meta name="description" content="Discover and share high-quality AI prompts for ChatGPT, Claude, and Midjourney. A sophisticated platform built with React, TypeScript, and modern web technologies.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1e293b',
+                        'secondary': '#0891b2',
+                        'accent': '#2dd4bf',
+                        'background': '#f8fafc',
+                        'text-primary': '#374151'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .hero-bg {
+            background: linear-gradient(135deg, #1e293b 0%, #0891b2 50%, #2dd4bf 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('resources/hero-image.jpg') center/cover;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #0891b2, #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .tech-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .tech-icon:hover {
+            transform: translateY(-8px) rotate(5deg);
+            filter: drop-shadow(0 10px 20px rgba(8, 145, 178, 0.3));
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .typing-animation {
+            overflow: hidden;
+            border-right: 2px solid #2dd4bf;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #2dd4bf; }
+        }
+        
+        .particle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #2dd4bf;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary font-sans">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span class="text-xl font-bold text-primary">PromptFolio Hub</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link text-text-primary hover:text-secondary">Home</a>
+                    <a href="demo.html" class="nav-link text-text-primary hover:text-secondary">Live Demo</a>
+                    <a href="tech.html" class="nav-link text-text-primary hover:text-secondary">Tech Stack</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/programerastro546/promptfolio-hub" target="_blank" class="text-text-primary hover:text-secondary transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                    <button class="md:hidden text-text-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-bg min-h-screen flex items-center justify-center relative">
+        <div class="particle-container" id="particles"></div>
+        <div class="hero-content container mx-auto px-6 text-center text-white">
+            <div class="max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-8">
+                    <div class="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+                    <span class="text-sm font-medium">Discover the best AI prompts</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                    <span class="typing-animation">PromptFolio Hub</span>
+                </h1>
+                
+                <p class="text-xl md:text-2xl mb-8 text-white/90 leading-relaxed max-w-2xl mx-auto">
+                    A curated collection of high-quality AI prompts for ChatGPT, Claude, and Midjourney. 
+                    Built with modern web technologies for the AI engineering community.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                    <a href="demo.html" class="bg-white text-primary px-8 py-4 rounded-lg font-semibold hover:bg-white/90 transition-all transform hover:scale-105 shadow-lg">
+                        Explore Prompts
+                    </a>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div class="floating-animation">
+                        <div class="text-3xl font-bold text-accent">50+</div>
+                        <div class="text-sm text-white/80">Quality Prompts</div>
+                    </div>
+                    <div class="floating-animation" style="animation-delay: 0.5s;">
+                        <div class="text-3xl font-bold text-accent">5</div>
+                        <div class="text-sm text-white/80">AI Platforms</div>
+                    </div>
+                    <div class="floating-animation" style="animation-delay: 1s;">
+                        <div class="text-3xl font-bold text-accent">100%</div>
+                        <div class="text-sm text-white/80">Open Source</div>
+                    </div>
+                    <div class="floating-animation" style="animation-delay: 1.5s;">
+                        <div class="text-3xl font-bold text-accent">React</div>
+                        <div class="text-sm text-white/80">Modern Stack</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4">
+                    Powerful Features for <span class="gradient-text">AI Enthusiasts</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Built with cutting-edge technologies to provide the best experience for discovering and sharing AI prompts.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">Advanced Search</h3>
+                    <p class="text-gray-600">Real-time search with keyword matching, tag filtering, and content analysis to find the perfect prompt for your needs.</p>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">Smart Tagging</h3>
+                    <p class="text-gray-600">Intelligent categorization system with auto-suggested tags, making it easy to organize and discover related prompts.</p>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">Community Ratings</h3>
+                    <p class="text-gray-600">Built-in rating system allowing users to rate and review prompts, ensuring quality content rises to the top.</p>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">Easy Submission</h3>
+                    <p class="text-gray-600">Streamlined prompt submission process with validation, preview, and instant publishing to the community.</p>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">Quality Control</h3>
+                    <p class="text-gray-600">Automated content moderation and community-driven quality assurance to maintain high standards.</p>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-primary mb-3">Modern Tech Stack</h3>
+                    <p class="text-gray-600">Built with React, TypeScript, Vite, and Supabase for optimal performance, scalability, and developer experience.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-primary text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-4">Ready to Explore?</h2>
+            <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+                Dive into the code, try the live demo, or learn more about the technical architecture behind PromptFolio Hub.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="demo.html" class="bg-accent text-primary px-8 py-4 rounded-lg font-semibold hover:bg-accent/90 transition-all transform hover:scale-105">
+                    Try Live Demo
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                    <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span class="text-xl font-bold">PromptFolio Hub</span>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <a href="https://github.com/programerastro546/promptfolio-hub" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                    <span class="text-gray-400">|</span>
+                    <span class="text-gray-400">Built with React, TypeScript & Vite</span>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">
+                    © 2025 PromptFolio Hub. An open-source project for the AI engineering community.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>5 PromptFolio Hub. An open-source project for the AI engineering community.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
