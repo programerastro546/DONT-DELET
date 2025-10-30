@@ -1123,7 +1123,7 @@ function renderPrompts(promptsToRender) {
     noResults.classList.add('hidden');
 
     grid.innerHTML = promptsToRender.map(prompt => `
-        <div class="prompt-card bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="prompt-card bg-white rounded-2xl shadow-lg overflow-hidden">
             <div class="p-6">
                 <div class="flex items-start justify-between mb-3">
                     <h3 class="text-xl font-bold text-gray-900 flex-1 pr-4">${prompt.title}</h3>
@@ -1138,18 +1138,23 @@ function renderPrompts(promptsToRender) {
                         <span class="ml-2 text-sm font-semibold text-gray-700">${prompt.rating}</span>
                     </div>
                     <span class="mx-2 text-gray-300">•</span>
-                    <span class="text-sm text-gray-600">👤 ${prompt.author}</span>
+                    <span class="text-sm text-gray-600 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        ${prompt.author}
+                    </span>
                 </div>
 
                 <div class="flex flex-wrap gap-2 mb-4">
-                    ${prompt.tags.slice(0, 3).map(tag => `<span class="tag-pill">🏷️ ${tag}</span>`).join('')}
+                    ${prompt.tags.slice(0, 3).map(tag => `<span class="tag-pill">${tag}</span>`).join('')}
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <div class="text-3xl font-bold text-blue-600">$${prompt.price.toFixed(2)}</div>
+                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div class="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">$${prompt.price.toFixed(2)}</div>
                     <button
                         onclick="addToCart(${prompt.id})"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-all transform hover:scale-105"
+                        class="bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-semibold py-2 px-6 rounded-lg transition-all transform hover:scale-105 shadow-md hover:shadow-lg"
                     >
                         Add to Cart
                     </button>
@@ -1198,7 +1203,14 @@ function updateCartCount() {
     const cartBtn = document.getElementById('cartBtn');
     if (cartBtn) {
         const count = cart.length;
-        cartBtn.innerHTML = `🛒 Cart (${count})`;
+        cartBtn.innerHTML = `
+            <span class="inline-flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                Cart (${count})
+            </span>
+        `;
     }
 }
 
@@ -1309,6 +1321,14 @@ function showToast(message, type = 'success') {
 const searchInput = document.getElementById('searchInput');
 searchInput.addEventListener('input', filterPrompts);
 
+document.querySelectorAll('.category-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterByCategory(btn.dataset.category);
+    });
+});
+
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeModal();
@@ -1322,26 +1342,8 @@ window.proceedToCheckout = proceedToCheckout;
 window.closeModal = closeModal;
 
 async function initializeShop() {
-    try {
-        const categories = await loadCategories();
-
-        const mainContent = document.querySelector('main');
-        const searchSection = mainContent.querySelector('div.mb-8');
-
-        const categoryNav = renderCategoryNav(categories, (categoryId, subcategoryId) => {
-            selectedCategoryId = categoryId;
-            selectedSubcategoryId = subcategoryId;
-            filterPrompts();
-        });
-
-        mainContent.insertBefore(categoryNav, searchSection.nextSibling);
-
-    } catch (error) {
-        console.error('Error initializing shop:', error);
-    }
-
     updateCartCount();
-    showEmptyState();
+    filterPrompts();
 }
 
 function showEmptyState() {
@@ -1355,13 +1357,15 @@ function showEmptyState() {
     `;
 }
 
+let currentCategory = 'all';
+
+function filterByCategory(category) {
+    currentCategory = category;
+    filterPrompts();
+}
+
 function filterPrompts() {
     const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-
-    if (!selectedCategoryId && !selectedSubcategoryId) {
-        showEmptyState();
-        return;
-    }
 
     filteredPrompts = prompts.filter(prompt => {
         const matchesSearch = !searchQuery ||
@@ -1371,7 +1375,17 @@ function filterPrompts() {
             prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery)) ||
             prompt.platform.toLowerCase().includes(searchQuery);
 
-        return matchesSearch;
+        const matchesCategory = currentCategory === 'all' ||
+            prompt.tags.some(tag => {
+                if (currentCategory === 'writing') return ['creative', 'writing', 'content', 'copywriting'].some(t => tag.includes(t));
+                if (currentCategory === 'coding') return ['programming', 'code-review', 'technical', 'development'].some(t => tag.includes(t));
+                if (currentCategory === 'marketing') return ['marketing', 'email', 'seo', 'social-media', 'sales'].some(t => tag.includes(t));
+                if (currentCategory === 'design') return ['design', 'ui-ux', 'interface', 'interior'].some(t => tag.includes(t));
+                if (currentCategory === 'productivity') return ['productivity', 'time-management', 'efficiency', 'habits'].some(t => tag.includes(t));
+                return true;
+            });
+
+        return matchesSearch && matchesCategory;
     });
 
     renderPrompts(filteredPrompts);

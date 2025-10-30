@@ -31,16 +31,58 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #f9fafb;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            min-height: 100vh;
+        }
+
+        .hero-header {
+            background: url('hero-image copy.jpg') center/cover no-repeat;
+            background-attachment: fixed;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(8, 145, 178, 0.85) 0%, rgba(45, 212, 191, 0.75) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
         }
 
         .prompt-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            border: 1px solid #e5e7eb;
         }
 
         .prompt-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 20px 40px rgba(8, 145, 178, 0.2);
+            border-color: #2dd4bf;
+        }
+
+        .category-pill {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .category-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);
+        }
+
+        .category-pill.active {
+            background: linear-gradient(135deg, #0891b2 0%, #2dd4bf 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
         }
 
         .modal-backdrop {
@@ -90,11 +132,17 @@
         .tag-pill {
             display: inline-block;
             padding: 0.25rem 0.75rem;
-            background: #eff6ff;
-            color: #3b82f6;
+            background: #dbeafe;
+            color: #0891b2;
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tag-pill:hover {
+            background: #0891b2;
+            color: white;
         }
 
         .platform-badge {
@@ -113,38 +161,92 @@
             background: #d97706;
             color: white;
         }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        #searchInput {
+            padding-left: 3.5rem;
+        }
     </style>
 </head>
 <body>
-    <header class="bg-white shadow-sm sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex items-center justify-between">
-                <div class="flex-1"></div>
-                <div class="text-center flex-1">
-                    <h1 class="text-4xl font-bold text-gray-900">PromptShelf</h1>
-                    <p class="text-gray-600 mt-2">Discover, Save, and Share the Best AI Prompts.</p>
+    <header class="hero-header text-white py-16 mb-8">
+        <div class="hero-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-4 border border-white/30">
+                    <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    <span class="text-sm font-medium">Premium AI Prompts Marketplace</span>
                 </div>
-                <div class="flex-1 flex justify-end">
-                    <button
-                        id="cartBtn"
-                        onclick="viewCart()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-all transform hover:scale-105"
-                    >
-                        🛒 Cart (0)
-                    </button>
-                </div>
+                <h1 class="text-5xl md:text-6xl font-bold mb-4">PromptShelf</h1>
+                <p class="text-xl text-white/90 mb-6">Discover, Save, and Share the Best AI Prompts</p>
+                <button
+                    id="cartBtn"
+                    onclick="viewCart()"
+                    class="bg-white text-cyan-600 hover:bg-gray-50 font-semibold py-3 px-8 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                >
+                    <span class="inline-flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Cart (0)
+                    </span>
+                </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="mb-8">
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="🔍 Search by title, tags, or author..."
-                class="w-full max-w-2xl mx-auto block px-6 py-4 text-lg rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition-all"
-            >
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div class="mb-8 space-y-6">
+            <div class="search-container">
+                <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search by title, tags, or author..."
+                    class="w-full max-w-3xl mx-auto block px-6 py-4 text-lg rounded-xl border-2 border-gray-200 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 focus:outline-none transition-all bg-white shadow-sm"
+                >
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-md">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                    Browse by Category
+                </h3>
+                <div id="categoriesContainer" class="flex flex-wrap gap-2">
+                    <button class="category-pill px-4 py-2 rounded-full bg-gradient-to-r from-cyan-50 to-teal-50 text-cyan-700 font-medium text-sm border border-cyan-200" data-category="all">
+                        All Prompts
+                    </button>
+                    <button class="category-pill px-4 py-2 rounded-full bg-gradient-to-r from-cyan-50 to-teal-50 text-cyan-700 font-medium text-sm border border-cyan-200" data-category="writing">
+                        Writing & Content
+                    </button>
+                    <button class="category-pill px-4 py-2 rounded-full bg-gradient-to-r from-cyan-50 to-teal-50 text-cyan-700 font-medium text-sm border border-cyan-200" data-category="coding">
+                        Coding & Development
+                    </button>
+                    <button class="category-pill px-4 py-2 rounded-full bg-gradient-to-r from-cyan-50 to-teal-50 text-cyan-700 font-medium text-sm border border-cyan-200" data-category="marketing">
+                        Marketing & Business
+                    </button>
+                    <button class="category-pill px-4 py-2 rounded-full bg-gradient-to-r from-cyan-50 to-teal-50 text-cyan-700 font-medium text-sm border border-cyan-200" data-category="design">
+                        Design & Creative
+                    </button>
+                    <button class="category-pill px-4 py-2 rounded-full bg-gradient-to-r from-cyan-50 to-teal-50 text-cyan-700 font-medium text-sm border border-cyan-200" data-category="productivity">
+                        Productivity & Tools
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div id="promptsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
