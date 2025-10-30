@@ -1,3 +1,7 @@
+import { supabase } from './config.js';
+import { loadCategories, renderCategoryNav } from './categories.js';
+
+let allPrompts = [];
 const prompts = [
     {
         id: 1,
@@ -1103,6 +1107,8 @@ const prompts = [
 
 let filteredPrompts = [...prompts];
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+let selectedCategoryId = null;
+let selectedSubcategoryId = null;
 
 function renderPrompts(promptsToRender) {
     const grid = document.getElementById('promptsGrid');
@@ -1301,23 +1307,7 @@ function showToast(message, type = 'success') {
 }
 
 const searchInput = document.getElementById('searchInput');
-searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-
-    if (!query) {
-        filteredPrompts = [...prompts];
-    } else {
-        filteredPrompts = prompts.filter(prompt => {
-            return prompt.title.toLowerCase().includes(query) ||
-                   prompt.description.toLowerCase().includes(query) ||
-                   prompt.author.toLowerCase().includes(query) ||
-                   prompt.tags.some(tag => tag.toLowerCase().includes(query)) ||
-                   prompt.platform.toLowerCase().includes(query);
-        });
-    }
-
-    renderPrompts(filteredPrompts);
-});
+searchInput.addEventListener('input', filterPrompts);
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -1331,5 +1321,44 @@ window.removeFromCart = removeFromCart;
 window.proceedToCheckout = proceedToCheckout;
 window.closeModal = closeModal;
 
-updateCartCount();
-renderPrompts(filteredPrompts);
+async function initializeShop() {
+    try {
+        const categories = await loadCategories();
+
+        const mainContent = document.querySelector('main');
+        const searchSection = mainContent.querySelector('div.mb-8');
+
+        const categoryNav = renderCategoryNav(categories, (categoryId, subcategoryId) => {
+            selectedCategoryId = categoryId;
+            selectedSubcategoryId = subcategoryId;
+            filterPrompts();
+        });
+
+        mainContent.insertBefore(categoryNav, searchSection.nextSibling);
+
+    } catch (error) {
+        console.error('Error initializing shop:', error);
+    }
+
+    updateCartCount();
+    renderPrompts(filteredPrompts);
+}
+
+function filterPrompts() {
+    const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+
+    filteredPrompts = prompts.filter(prompt => {
+        const matchesSearch = !searchQuery ||
+            prompt.title.toLowerCase().includes(searchQuery) ||
+            prompt.description.toLowerCase().includes(searchQuery) ||
+            prompt.author.toLowerCase().includes(searchQuery) ||
+            prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery)) ||
+            prompt.platform.toLowerCase().includes(searchQuery);
+
+        return matchesSearch;
+    });
+
+    renderPrompts(filteredPrompts);
+}
+
+initializeShop();
