@@ -1,0 +1,116 @@
+{% comment %}
+  Features Grid Section
+  Display key features with icons
+{% endcomment %}
+
+<section class="py-20 bg-white">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      {% if section.settings.heading %}
+        <h2 class="text-4xl font-bold text-gray-900 mb-4">
+          {{ section.settings.heading }}
+        </h2>
+      {% endif %}
+      {% if section.settings.subheading %}
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          {{ section.settings.subheading }}
+        </p>
+      {% endif %}
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for block in section.blocks %}
+        <div class="feature-card bg-white p-8 rounded-xl shadow-lg border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" {{ block.shopify_attributes }}>
+          {% if block.settings.icon %}
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-teal-500 rounded-lg flex items-center justify-center mb-6">
+              <img src="{{ block.settings.icon | img_url: '48x48' }}" alt="{{ block.settings.title }}" width="24" height="24" loading="lazy">
+            </div>
+          {% else %}
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-teal-500 rounded-lg flex items-center justify-center mb-6">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+          {% endif %}
+
+          {% if block.settings.title %}
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ block.settings.title }}</h3>
+          {% endif %}
+
+          {% if block.settings.description %}
+            <p class="text-gray-600">{{ block.settings.description }}</p>
+          {% endif %}
+
+          {% if block.settings.link %}
+            <a href="{{ block.settings.link }}" class="inline-block mt-4 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
+              Learn More →
+            </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Features Grid",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Powerful Features"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Built with cutting-edge technologies to provide the best experience"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Feature Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Feature description goes here"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Features Grid",
+      "blocks": [
+        { "type": "feature" },
+        { "type": "feature" },
+        { "type": "feature" },
+        { "type": "feature" },
+        { "type": "feature" },
+        { "type": "feature" }
+      ]
+    }
+  ]
+}
+{% endschema %}

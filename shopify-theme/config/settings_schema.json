@@ -1,0 +1,287 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "PromptFolio Hub",
+    "theme_version": "1.0.0",
+    "theme_author": "PromptFolio",
+    "theme_documentation_url": "https://promptfolio-hub.com/docs",
+    "theme_support_url": "https://promptfolio-hub.com/support"
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Color Palette"
+      },
+      {
+        "type": "color",
+        "id": "color_primary",
+        "label": "Primary Color",
+        "default": "#1e293b",
+        "info": "Used for headings and primary elements"
+      },
+      {
+        "type": "color",
+        "id": "color_secondary",
+        "label": "Secondary Color",
+        "default": "#0891b2",
+        "info": "Used for buttons and accents"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Accent Color",
+        "default": "#2dd4bf",
+        "info": "Used for highlights and CTAs"
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Background Color",
+        "default": "#f8fafc"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Text Color",
+        "default": "#374151"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Font Settings"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_heading_font",
+        "label": "Heading Font",
+        "default": "assistant_n4",
+        "info": "Used for all headings (H1-H6)"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "label": "Body Font",
+        "default": "assistant_n4",
+        "info": "Used for body text and UI elements"
+      },
+      {
+        "type": "range",
+        "id": "font_size_base",
+        "min": 14,
+        "max": 20,
+        "step": 1,
+        "unit": "px",
+        "label": "Base Font Size",
+        "default": 16
+      }
+    ]
+  },
+  {
+    "name": "Logo",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo Image"
+      },
+      {
+        "type": "range",
+        "id": "logo_max_width",
+        "min": 50,
+        "max": 300,
+        "step": 10,
+        "unit": "px",
+        "label": "Logo Width",
+        "default": 150
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "Will be scaled down to 32x32px"
+      }
+    ]
+  },
+  {
+    "name": "Social Media",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Social Media Links"
+      },
+      {
+        "type": "text",
+        "id": "social_twitter_link",
+        "label": "Twitter",
+        "info": "https://twitter.com/yourusername"
+      },
+      {
+        "type": "text",
+        "id": "social_facebook_link",
+        "label": "Facebook",
+        "info": "https://facebook.com/yourusername"
+      },
+      {
+        "type": "text",
+        "id": "social_instagram_link",
+        "label": "Instagram",
+        "info": "https://instagram.com/yourusername"
+      },
+      {
+        "type": "text",
+        "id": "social_linkedin_link",
+        "label": "LinkedIn",
+        "info": "https://linkedin.com/company/yourcompany"
+      },
+      {
+        "type": "text",
+        "id": "social_youtube_link",
+        "label": "YouTube",
+        "info": "https://youtube.com/channel/yourchannel"
+      }
+    ]
+  },
+  {
+    "name": "Cart",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Cart Settings"
+      },
+      {
+        "type": "select",
+        "id": "cart_type",
+        "label": "Cart Type",
+        "options": [
+          {
+            "value": "drawer",
+            "label": "Drawer"
+          },
+          {
+            "value": "page",
+            "label": "Page"
+          }
+        ],
+        "default": "drawer"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_notes_enable",
+        "label": "Enable Cart Notes",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Product Grid",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Product Display Settings"
+      },
+      {
+        "type": "range",
+        "id": "products_per_row_desktop",
+        "min": 2,
+        "max": 5,
+        "step": 1,
+        "label": "Products Per Row (Desktop)",
+        "default": 4
+      },
+      {
+        "type": "range",
+        "id": "products_per_row_mobile",
+        "min": 1,
+        "max": 2,
+        "step": 1,
+        "label": "Products Per Row (Mobile)",
+        "default": 1
+      },
+      {
+        "type": "checkbox",
+        "id": "product_show_vendor",
+        "label": "Show Product Vendor",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "product_show_compare_at_price",
+        "label": "Show Compare at Price",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Search",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Search Settings"
+      },
+      {
+        "type": "checkbox",
+        "id": "predictive_search_enabled",
+        "label": "Enable Predictive Search",
+        "default": true,
+        "info": "Show search suggestions as you type"
+      },
+      {
+        "type": "checkbox",
+        "id": "search_show_vendor",
+        "label": "Show Vendor in Results",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Performance",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Performance Optimization"
+      },
+      {
+        "type": "checkbox",
+        "id": "lazy_load_images",
+        "label": "Lazy Load Images",
+        "default": true,
+        "info": "Load images as they come into view"
+      },
+      {
+        "type": "checkbox",
+        "id": "preload_fonts",
+        "label": "Preload Fonts",
+        "default": true,
+        "info": "Improve initial page load time"
+      }
+    ]
+  },
+  {
+    "name": "Accessibility",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Accessibility Settings"
+      },
+      {
+        "type": "checkbox",
+        "id": "skip_to_content",
+        "label": "Enable Skip to Content Link",
+        "default": true,
+        "info": "Helps keyboard users navigate"
+      },
+      {
+        "type": "checkbox",
+        "id": "high_contrast_mode",
+        "label": "Enable High Contrast Mode Option",
+        "default": false
+      }
+    ]
+  }
+]

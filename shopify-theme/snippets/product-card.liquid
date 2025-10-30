@@ -1,0 +1,103 @@
+{% comment %}
+  Product Card Snippet
+  Reusable product card with accessibility and performance optimization
+{% endcomment %}
+
+<article class="product-card group bg-white rounded-xl shadow-md hover:shadow-2xl border border-gray-100 overflow-hidden transition-all duration-300 hover:-translate-y-2">
+  <a href="{{ product.url }}" class="block" aria-label="{{ product.title }}">
+    <div class="relative overflow-hidden bg-gray-100 aspect-square">
+      {% if product.featured_image %}
+        <img
+          src="{{ product.featured_image | img_url: '600x600' }}"
+          alt="{{ product.featured_image.alt | escape }}"
+          loading="lazy"
+          width="600"
+          height="600"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        >
+      {% else %}
+        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+          <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+      {% endif %}
+
+      {% if product.compare_at_price > product.price %}
+        <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+          SALE
+        </span>
+      {% endif %}
+
+      {% unless product.available %}
+        <span class="absolute top-2 left-2 bg-gray-900 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+          SOLD OUT
+        </span>
+      {% endunless %}
+    </div>
+
+    <div class="p-6">
+      {% if product.metafields.custom.category %}
+        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium mb-3">
+          {{ product.metafields.custom.category }}
+        </span>
+      {% endif %}
+
+      <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+        {{ product.title }}
+      </h3>
+
+      {% if product.metafields.custom.platform %}
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded font-medium">
+            {{ product.metafields.custom.platform }}
+          </span>
+        </div>
+      {% endif %}
+
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-2xl font-bold text-gray-900">{{ product.price | money }}</span>
+          {% if product.compare_at_price > product.price %}
+            <span class="text-sm text-gray-500 line-through ml-2">{{ product.compare_at_price | money }}</span>
+          {% endif %}
+        </div>
+
+        {% if product.metafields.custom.rating %}
+          <div class="flex items-center gap-1">
+            <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <span class="text-sm font-medium text-gray-700">{{ product.metafields.custom.rating }}</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </a>
+
+  <div class="px-6 pb-6">
+    <form method="post" action="/cart/add" class="product-form">
+      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" />
+      <button
+        type="submit"
+        class="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold py-3 rounded-lg hover:from-blue-700 hover:to-teal-600 transition-all transform hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        {% unless product.available %}disabled{% endunless %}
+      >
+        {% if product.available %}
+          Add to Cart
+        {% else %}
+          Sold Out
+        {% endif %}
+      </button>
+    </form>
+  </div>
+</article>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

@@ -1,0 +1,160 @@
+{% comment %}
+  Footer Section
+  Accessible footer with links and information
+{% endcomment %}
+
+<footer class="bg-gray-900 text-white py-12" role="contentinfo">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-4 gap-8 mb-8">
+      <div>
+        {% if section.settings.footer_logo %}
+          <img
+            src="{{ section.settings.footer_logo | img_url: '150x150' }}"
+            alt="{{ shop.name }}"
+            width="100"
+            height="100"
+            loading="lazy"
+            class="mb-4"
+          >
+        {% else %}
+          <div class="flex items-center space-x-2 mb-4">
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-teal-500 rounded-lg flex items-center justify-center">
+              <span class="text-white font-bold text-sm">P</span>
+            </div>
+            <span class="text-xl font-bold">{{ shop.name }}</span>
+          </div>
+        {% endif %}
+
+        {% if section.settings.footer_text %}
+          <p class="text-gray-400 mb-4">{{ section.settings.footer_text }}</p>
+        {% endif %}
+
+        {% if section.settings.show_social_links %}
+          <div class="flex items-center space-x-4">
+            {% if settings.social_twitter_link != blank %}
+              <a href="{{ settings.social_twitter_link }}" class="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
+                </svg>
+              </a>
+            {% endif %}
+            {% if settings.social_facebook_link != blank %}
+              <a href="{{ settings.social_facebook_link }}" class="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+                </svg>
+              </a>
+            {% endif %}
+            {% if settings.social_instagram_link != blank %}
+              <a href="{{ settings.social_instagram_link }}" class="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01"></path>
+                  <path d="M7.5 2h9A5.5 5.5 0 0122 7.5v9a5.5 5.5 0 01-5.5 5.5h-9A5.5 5.5 0 012 16.5v-9A5.5 5.5 0 017.5 2z"></path>
+                </svg>
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      {% for block in section.blocks %}
+        {% if block.type == 'link_list' %}
+          <div {{ block.shopify_attributes }}>
+            {% if block.settings.heading %}
+              <h3 class="text-lg font-semibold mb-4">{{ block.settings.heading }}</h3>
+            {% endif %}
+            {% if block.settings.menu != blank %}
+              <ul class="space-y-2">
+                {% for link in linklists[block.settings.menu].links %}
+                  <li>
+                    <a href="{{ link.url }}" class="text-gray-400 hover:text-white transition-colors">
+                      {{ link.title }}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="border-t border-gray-800 pt-8 mt-8">
+      <div class="flex flex-col md:flex-row items-center justify-between">
+        <p class="text-gray-400 text-sm mb-4 md:mb-0">
+          © {{ 'now' | date: '%Y' }} {{ shop.name }}. {{ section.settings.copyright_text }}
+        </p>
+
+        <div class="flex items-center space-x-4">
+          <img src="https://cdn.shopify.com/shopifycloud/shopify/assets/payment_icons/visa-319d545c6fd255c9aad5eeaad21fd6f7f7b4fdbdb1a35ce83b89cca12a187f00.svg" alt="Visa" width="40" height="25" loading="lazy">
+          <img src="https://cdn.shopify.com/shopifycloud/shopify/assets/payment_icons/master-173035bc8124581983d4efa50cf8626e8553c2b311353fbf67485f9c1a2b88d1.svg" alt="Mastercard" width="40" height="25" loading="lazy">
+          <img src="https://cdn.shopify.com/shopifycloud/shopify/assets/payment_icons/american_express-2264c9b8b57b23b0b0831827e90cd7bcda2836f89cde957b48d5b87bf0363cc8.svg" alt="American Express" width="40" height="25" loading="lazy">
+          <img src="https://cdn.shopify.com/shopifycloud/shopify/assets/payment_icons/paypal-49e4c1e03244b6d2de0d270ca0d22dd15da6e92cc7266e93eb43762df5aa355d.svg" alt="PayPal" width="40" height="25" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "footer_logo",
+      "label": "Footer Logo"
+    },
+    {
+      "type": "textarea",
+      "id": "footer_text",
+      "label": "Footer Text",
+      "default": "Premium AI Prompt Marketplace"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social_links",
+      "label": "Show Social Links",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "copyright_text",
+      "label": "Copyright Text",
+      "default": "All rights reserved."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "link_list",
+      "name": "Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Quick Links"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "link_list"
+      },
+      {
+        "type": "link_list"
+      },
+      {
+        "type": "link_list"
+      }
+    ]
+  }
+}
+{% endschema %}

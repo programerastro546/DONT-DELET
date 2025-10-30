@@ -1,0 +1,61 @@
+{% paginate collection.products by 12 %}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  {% render 'breadcrumbs' %}
+
+  <header class="mb-8">
+    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{{ collection.title }}</h1>
+    {% if collection.description != blank %}
+      <div class="text-lg text-gray-600 max-w-3xl">{{ collection.description }}</div>
+    {% endif %}
+  </header>
+
+  {% if collection.products.size > 0 %}
+    <div class="mb-8 flex items-center justify-between flex-wrap gap-4">
+      <div class="text-gray-600">
+        {{ 'collections.general.items_count' | t: count: collection.products_count }}
+      </div>
+
+      <div class="flex items-center gap-4">
+        <label for="SortBy" class="text-sm font-medium text-gray-700">{{ 'collections.sorting.title' | t }}</label>
+        <select name="sort_by" id="SortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          {% assign sort_by = collection.sort_by | default: collection.default_sort_by %}
+          {% for option in collection.sort_options %}
+            <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>
+              {{ option.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {% for product in collection.products %}
+        {% render 'product-card', product: product %}
+      {% endfor %}
+    </div>
+
+    {% if paginate.pages > 1 %}
+      <div class="mt-12 flex justify-center">
+        {% render 'pagination', paginate: paginate %}
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="text-center py-16">
+      <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+      </svg>
+      <h2 class="text-2xl font-semibold text-gray-700 mb-2">{{ 'collections.general.no_products' | t }}</h2>
+    </div>
+  {% endif %}
+</div>
+
+{% endpaginate %}
+
+<script>
+  document.getElementById('SortBy').addEventListener('change', function() {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort_by', this.value);
+    window.location.href = url.toString();
+  });
+</script>

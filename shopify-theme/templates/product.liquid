@@ -1,0 +1,150 @@
+{% assign current_variant = product.selected_or_first_available_variant %}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  {% render 'breadcrumbs' %}
+
+  <div class="grid md:grid-cols-2 gap-12 mb-12">
+    <div class="product-gallery">
+      {% if product.featured_image %}
+        <div class="mb-4 rounded-xl overflow-hidden shadow-lg">
+          <img
+            src="{{ product.featured_image | img_url: '800x800' }}"
+            alt="{{ product.featured_image.alt | escape }}"
+            loading="eager"
+            width="800"
+            height="800"
+            class="w-full h-auto"
+          >
+        </div>
+      {% endif %}
+
+      {% if product.images.size > 1 %}
+        <div class="grid grid-cols-4 gap-4">
+          {% for image in product.images limit: 4 %}
+            <button
+              type="button"
+              class="rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-500 transition-colors"
+              onclick="document.querySelector('.product-gallery img').src = '{{ image | img_url: '800x800' }}'"
+            >
+              <img
+                src="{{ image | img_url: '200x200' }}"
+                alt="{{ image.alt | escape }}"
+                loading="lazy"
+                width="200"
+                height="200"
+                class="w-full h-auto"
+              >
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="product-info">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ product.title }}</h1>
+
+      <div class="mb-6">
+        <span class="text-3xl font-bold text-gray-900">{{ current_variant.price | money }}</span>
+        {% if current_variant.compare_at_price > current_variant.price %}
+          <span class="text-xl text-gray-500 line-through ml-2">{{ current_variant.compare_at_price | money }}</span>
+          <span class="inline-block ml-2 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+            {{ current_variant.compare_at_price | minus: current_variant.price | times: 100 | divided_by: current_variant.compare_at_price }}% OFF
+          </span>
+        {% endif %}
+      </div>
+
+      {% if product.description != blank %}
+        <div class="prose prose-lg mb-8 text-gray-600">
+          {{ product.description }}
+        </div>
+      {% endif %}
+
+      {% if product.metafields.custom.features %}
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Key Features</h3>
+          <ul class="space-y-2">
+            {% assign features = product.metafields.custom.features | split: ',' %}
+            {% for feature in features %}
+              <li class="flex items-start gap-2">
+                <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-gray-700">{{ feature | strip }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <form method="post" action="/cart/add" class="mb-8">
+        <input type="hidden" name="id" value="{{ current_variant.id }}" />
+
+        {% unless product.has_only_default_variant %}
+          {% for option in product.options_with_values %}
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ option.name }}</label>
+              <div class="flex flex-wrap gap-2">
+                {% for value in option.values %}
+                  <input
+                    type="radio"
+                    id="{{ option.name }}-{{ value | handle }}"
+                    name="options[{{ option.name }}]"
+                    value="{{ value }}"
+                    class="sr-only peer"
+                    {% if option.selected_value == value %}checked{% endif %}
+                  >
+                  <label
+                    for="{{ option.name }}-{{ value | handle }}"
+                    class="px-4 py-2 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all"
+                  >
+                    {{ value }}
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        {% endunless %}
+
+        <button
+          type="submit"
+          class="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-teal-600 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          {% unless current_variant.available %}disabled{% endunless %}
+        >
+          {% if current_variant.available %}
+            {{ 'products.product.add_to_cart' | t }}
+          {% else %}
+            {{ 'products.product.sold_out' | t }}
+          {% endif %}
+        </button>
+      </form>
+
+      {% render 'social-share', share_title: product.title, share_permalink: product.url, share_image: product.featured_image %}
+    </div>
+  </div>
+
+  {% if product.metafields.custom.use_cases %}
+    <div class="bg-gray-50 rounded-2xl p-8 mb-12">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Use Cases</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        {% assign use_cases = product.metafields.custom.use_cases | split: ',' %}
+        {% for use_case in use_cases %}
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <p class="text-gray-700">{{ use_case | strip }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Product Information",
+  "settings": []
+}
+{% endschema %}

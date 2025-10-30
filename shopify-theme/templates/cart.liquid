@@ -1,0 +1,130 @@
+{% comment %}
+  Cart Page Template
+  Accessible and user-friendly cart experience
+{% endcomment %}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 class="text-4xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+
+  {% if cart.item_count > 0 %}
+    <div class="grid lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <form action="/cart" method="post" novalidate>
+          <div class="bg-white rounded-xl shadow-lg divide-y">
+            {% for item in cart.items %}
+              <div class="p-6 flex gap-6">
+                <a href="{{ item.url }}" class="flex-shrink-0">
+                  <img
+                    src="{{ item.image | img_url: '200x200' }}"
+                    alt="{{ item.title | escape }}"
+                    width="100"
+                    height="100"
+                    loading="lazy"
+                    class="rounded-lg"
+                  >
+                </a>
+
+                <div class="flex-1">
+                  <div class="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900">
+                        <a href="{{ item.url }}">{{ item.product.title }}</a>
+                      </h3>
+                      {% if item.variant.title != 'Default Title' %}
+                        <p class="text-sm text-gray-600">{{ item.variant.title }}</p>
+                      {% endif %}
+                    </div>
+                    <a
+                      href="/cart/change?line={{ forloop.index }}&quantity=0"
+                      class="text-gray-400 hover:text-red-600 transition-colors"
+                      aria-label="Remove {{ item.title }}"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </a>
+                  </div>
+
+                  <div class="flex items-center justify-between mt-4">
+                    <div class="flex items-center gap-2">
+                      <label for="quantity-{{ forloop.index }}" class="sr-only">Quantity</label>
+                      <input
+                        type="number"
+                        id="quantity-{{ forloop.index }}"
+                        name="updates[]"
+                        value="{{ item.quantity }}"
+                        min="0"
+                        class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onchange="this.form.submit()"
+                      >
+                    </div>
+
+                    <div class="text-right">
+                      <p class="text-2xl font-bold text-gray-900">{{ item.final_line_price | money }}</p>
+                      {% if item.original_line_price != item.final_line_price %}
+                        <p class="text-sm text-gray-500 line-through">{{ item.original_line_price | money }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <button type="submit" name="update" class="mt-4 text-blue-600 hover:text-blue-700 font-semibold">
+            Update Cart
+          </button>
+        </form>
+      </div>
+
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-lg p-6 sticky top-20">
+          <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+
+          <div class="space-y-4 mb-6">
+            <div class="flex justify-between text-gray-600">
+              <span>Subtotal</span>
+              <span class="font-semibold">{{ cart.total_price | money }}</span>
+            </div>
+
+            <div class="flex justify-between text-gray-600">
+              <span>Shipping</span>
+              <span class="text-sm">Calculated at checkout</span>
+            </div>
+
+            <div class="border-t pt-4 flex justify-between text-lg font-bold text-gray-900">
+              <span>Total</span>
+              <span>{{ cart.total_price | money }}</span>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            name="checkout"
+            class="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-teal-600 transition-all transform hover:scale-105 shadow-lg mb-4"
+          >
+            Proceed to Checkout
+          </button>
+
+          <a href="/collections/all" class="block text-center text-blue-600 hover:text-blue-700 font-semibold">
+            Continue Shopping
+          </a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="text-center py-20">
+      <svg class="w-32 h-32 mx-auto text-gray-300 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+      </svg>
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
+      <p class="text-lg text-gray-600 mb-8">Start shopping to add items to your cart</p>
+      <a
+        href="/collections/all"
+        class="inline-block bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-teal-600 transition-all transform hover:scale-105 shadow-lg"
+      >
+        Browse Products
+      </a>
+    </div>
+  {% endif %}
+</div>
